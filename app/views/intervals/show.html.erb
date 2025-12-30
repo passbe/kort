@@ -1,0 +1,78 @@
+<% content_for :title, "#{Interval.model_name.human}: #{@interval.name}" %>
+<%= turbo_stream_from @interval, class: "hidden" %>
+<%= turbo_stream_from :executions, class: "hidden" %>
+<%= render HeaderComponent.new(
+  title: @interval.name,
+  attributes: {
+    Interval.model_name.human => nil,
+    Interval.human_attribute_name(:id) => @interval.id,
+    Interval.human_attribute_name(:schedules_count) => @interval.schedules_count,
+    Interval.human_attribute_name(:tag_list) => (@interval.tag_list.empty? ? I18n.t("none") : @interval.tag_list.join(", "))
+  },
+  statistics: Hash.new.tap do |h|
+    if @interval.enabled && @next_schedule
+      h[Schedule.human_attribute_name(:next_execution_at)] = {
+        value: timespan(@next_schedule.next_execution_secs),
+        data: {
+          controller: "timer",
+          "timer-time-value": @next_schedule.next_execution_at.to_i
+        }
+      }
+    end
+    if @current_grace_schedule
+      h[Schedule.human_attribute_name(:grace_expires_at)] = {
+        value: timespan(@current_grace_schedule.grace_expires_secs),
+        data: {
+          controller: "timer",
+          "timer-time-value": @current_grace_schedule.grace_expires_at.to_i
+        }
+      }
+    end
+  end,
+  status: I18n.t(@interval.enabled? ? "status.enabled" : "status.disabled"),
+  status_css: "text-zinc-800 #{@interval.enabled? ? "bg-green-400" : "bg-yellow-400"}"
+) do %>
+  <div class="lg:basis-1/2">
+    <%= render BreadcrumbsComponent.new([
+      [t("home"), root_path],
+      [Interval.model_name.human.pluralize, intervals_path],
+      @interval.name
+    ]) %>
+  </div>
+  <div class="lg:basis-1/2 flex flex-row space-x-4 justify-end">
+    <%= link_to t("button.edit"), edit_interval_path(@interval) %>
+    <%= link_to t("button.delete"), confirm_interval_path(@interval), data: { 
+      "turbo-frame": "modal"
+    } %>
+  </div>
+<% end %>
+<main class="flex-1 flex flex-col px-3 pt-3 pb-6 space-y-6 lg:px-6 lg:pt-6 lg:pb-12 lg:space-y-12">
+  <%= render HeatmapComponent.new(target: @interval, months: Rails.application.config.retention_months) %>
+  <section class="flex flex-col space-y-2">
+    <div class="flex flex-row space-x-4">
+      <div class="grow">
+        <h1 class="font-medium text-gray-100 text-lg">
+          <%= Execution.model_name.human.pluralize %>
+        </h1>
+      </div>
+      <div class="text-sm text-gray-300 flex flex-col space-y-1 lg:space-y-0 lg:flex-row lg:items-end lg:space-x-6">
+        <%= render FilterComponent.new(mode: @mode, date: @date, reset_path: interval_path(@interval), pagy: @pagy) %>
+      </div>
+    </div>
+    <div class="grow">
+      <%= render TableComponent.new([
+        Execution.human_attribute_name(:counter),
+        Execution.human_attribute_name(:status),
+        { text: Execution.human_attribute_name(:message), align: :left },
+        I18n.t("execution.interval.created_at"),
+        I18n.t("execution.interval.started_at"),
+        Execution.human_attribute_name(:elapsed)
+      ]) do %>
+        <%= render ExecutionComponent.with_collection(@executions) %>
+      <% end %>
+    </div>
+    <div class="flex flex-row space-x-4 justify-center text-sm">
+      <%= render PaginationComponent.new(pagy: @pagy) %>
+    </div>
+  </section>
+</main>

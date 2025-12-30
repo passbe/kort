@@ -1,0 +1,27 @@
+<tr class="text-gray-300 hover:bg-neutral-500/40">
+  <td class="text-left">
+    <%= link_to probe_path(@probe), class: status_css do %>
+      <%= @probe.enabled ? t("status.enabled") : t("status.disabled") %>
+    <% end %>
+  </td>
+  <td class="text-left">
+    <%= link_to probe_path(@probe), class: link_css do %>
+      <span class="text-gray-200"><%= @probe.name %></span>
+    <% end %>
+  </td>
+  <td class="text-left">
+    <%= link_to probe_path(@probe), class: link_css do %>
+      <%= @probe.model_name.human %>
+    <% end %>
+  </td>
+  <td class="text-center">
+    <%= link_to probe_path(@probe), class: link_css do %>
+      <%= @probe.tag_list %>
+    <% end %>
+  </td>
+  <td class="text-center">
+    <%= link_to probe_path(@probe), class: link_css do %>
+      <%= @probe.schedules_count %>
+    <% end %>
+  </td>
+<tr>

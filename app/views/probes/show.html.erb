@@ -1,0 +1,72 @@
+<% content_for :title, "#{Probe.model_name.human}: #{@probe.name}" %>
+<%= turbo_stream_from @probe, class: "hidden" %>
+<%= turbo_stream_from :executions, class: "hidden" %>
+<%= render HeaderComponent.new(
+  title: @probe.name,
+  attributes: {
+    Probe.model_name.human => nil,
+    Probe.human_attribute_name(:id) => @probe.id,
+    Probe.human_attribute_name(:type) => @probe.model_name.human,
+    Probe.human_attribute_name(:schedules_count) => @probe.schedules_count,
+    Probe.human_attribute_name(:tag_list) => (@probe.tag_list.empty? ? I18n.t("none") : @probe.tag_list.join(", "))
+  },
+  statistics: Hash.new.tap do |h|
+    if @probe.enabled && @next_schedule
+      h[Schedule.human_attribute_name(:next_execution_at)] = {
+        value:  timespan(@next_schedule.next_execution_secs),
+        data: {
+          controller: "timer",
+          "timer-time-value": @next_schedule.next_execution_at.to_i
+        }
+      }
+    end
+  end,
+  status: I18n.t(@probe.enabled ? "status.enabled" : "status.disabled"),
+  status_css: status_bg_css(@probe.enabled)
+) do %>
+  <div class="lg:basis-1/2">
+    <%= render BreadcrumbsComponent.new([
+      [t("home"), root_path],
+      [Probe.model_name.human.pluralize, probes_path],
+      @probe.name
+    ]) %>
+  </div>
+  <div class="lg:basis-1/2 flex flex-row space-x-4 items-center justify-end">
+    <% if @probe.enabled %>
+      <%= link_to t("button.execute"), execute_probe_path, data: { "turbo-method": "post" }  %>
+    <% end %>
+    <%= link_to t("button.edit"), edit_probe_path(@probe) %>
+    <%= link_to t("button.delete"), confirm_probe_path(@probe), data: { 
+      "turbo-frame": "modal"
+    } %>
+  </div>
+<% end %>
+<main class="flex-1 flex flex-col px-3 pt-3 pb-6 space-y-6 lg:px-6 lg:pt-6 lg:pb-12 lg:space-y-12">
+  <%= render HeatmapComponent.new(target: @probe, months: Rails.application.config.retention_months) %>
+  <section class="flex flex-col space-y-2">
+    <div class="flex flex-row space-x-4">
+      <div class="grow">
+        <h1 class="font-medium text-gray-100 text-lg">
+          <%= Execution.model_name.human.pluralize %>
+        </h1>
+      </div>
+      <div class="text-sm text-gray-300 flex flex-col space-y-1 lg:space-y-0 lg:flex-row lg:items-end lg:space-x-6">
+        <%= render FilterComponent.new(mode: @mode, date: @date, reset_path: probe_path(@probe), pagy: @pagy) %>
+      </div>
+    </div>
+    <div class="grow">
+      <%= render TableComponent.new([
+        Execution.human_attribute_name(:counter),
+        Execution.human_attribute_name(:status),
+        { text: Execution.human_attribute_name(:message), align: :left },
+        Execution.human_attribute_name(:created_at),
+        Execution.human_attribute_name(:elapsed)
+      ]) do %>
+        <%= render ExecutionComponent.with_collection(@executions) %>
+      <% end %>
+    </div>
+    <div class="flex flex-row space-x-4 justify-center text-sm">
+      <%= render PaginationComponent.new(pagy: @pagy) %>
+    </div>
+  </section>
+</main>

@@ -1,0 +1,57 @@
+<tr class="text-gray-300 hover:bg-neutral-500/40">
+  <% if detailed? %>
+    <td class="text-center">
+      <% if @execution.pending? or @execution.started? %>
+        <%= helpers.turbo_stream_from @execution, class: "hidden" %>
+      <% end %>
+      <%= link_to execution_path(@execution), class: link_css do %>
+        <%= number_with_delimiter(@execution.counter) %>
+      <% end %>
+    </td>
+  <% end %>
+  <td class="text-center">
+    <%= link_to execution_path(@execution), class: status_css do %>
+      <%= t("status.#{@execution.status}") %>
+    <% end %>
+  </td>
+  <% if summary? %>
+    <td class="text-left">
+      <% if @execution.pending? or @execution.started? %>
+        <%= helpers.turbo_stream_from @execution, class: "hidden" %>
+      <% end %>
+      <%= link_to @execution.target.name, path, class: link_css %>
+    </td>
+  <% end %>
+  <td class="text-left">
+    <%= link_to execution_path(@execution), class: link_css do %>
+      <% if @execution.message.blank? %>
+        <span class="italic"><%= t("execution.no_message") %></span>
+      <% else %>
+        <%= @execution.message %>
+      <% end %>
+    <% end %>
+  </td>
+  <td class="text-center">
+    <%= link_to execution_path(@execution), class: link_css do %>
+      <%= @execution.created_at.strftime('%Y-%m-%d %H:%M:%S') %>
+    <% end %>
+  </td>
+  <% if detailed? and @execution.target.is_a?(Interval) %>
+    <td class="text-center">
+      <%= link_to execution_path(@execution), class: link_css do %>
+        <% if @execution.started_at.nil? and @execution.finished_at.nil? %>
+          -
+        <% elsif @execution.started_at.nil? and @execution.finished_at.present? %>
+          <%= @execution.finished_at.strftime('%Y-%m-%d %H:%M:%S') %>
+        <% elsif @execution.started_at.present? %>
+          <%= @execution.started_at.strftime('%Y-%m-%d %H:%M:%S') %>
+        <% end %>
+      <% end %>
+    </td>
+  <% end %>
+  <td class="text-center">
+    <%= link_to execution_path(@execution), class: link_css, data: timer_html_data do %>
+      <%= @execution.elapsed_secs.nil? ? "-" : helpers.timespan(@execution.elapsed_secs) %>
+    <% end %>
+  </td>
+<tr>

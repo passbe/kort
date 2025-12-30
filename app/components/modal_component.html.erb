@@ -1,0 +1,25 @@
+<div data-controller="modal" data-action="turbo:submit-end->modal#hideOnSubmit keydown.esc->modal#hide" role="dialog" tabindex="-1" class="fixed inset-0 z-30 flex items-center justify-center w-full h-screen p-2">
+
+  <div class="fixed inset-0 block w-full h-screen cursor-default bg-neutral-700/80"></div>
+
+  <div class="relative z-20 w-full max-w-2xl max-h-screen overflow-y-auto bg-neutral-800 border border-neutral-700 shadow-lg rounded-md">
+
+    <div class="absolute top-0 right-0 block pt-4 pr-4">
+      <button type="button" class="rounded-md text-gray-300 hover:text-sky-400 hover:cursor-pointer" data-action="modal#hide">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" data-slot="icon" aria-hidden="true" class="size-6">
+          <path d="M6 18 18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round"></path>
+        </svg>
+      </button>
+    </div>
+
+    <div class="flex flex-col space-y-4 p-4 lg:p-8">
+      <h3 class="text-base text-gray-100 font-semibold"><%= @title %></h3>
+      <p class="text-sm text-gray-300 modal_destroy_description"><%= @description %></p>
+      <div class="flex justify-end items-center space-x-6">
+        <%= actions %>
+        <%= link_to t("button.cancel"), '#cancel', data: { action: "modal#hide" } %>
+      </div>
+    </div>
+
+  </div>
+</div>

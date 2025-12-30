@@ -1,0 +1,50 @@
+<%= turbo_stream_from :executions, class: "hidden" %>
+<%= render HeaderComponent.new(
+  title: t("name"),
+  attributes: {
+    t("tagline") => nil,
+  },
+  statistics: {
+    Execution.model_name.human.pluralize => number_with_delimiter(@pagy.count),
+    Probe.model_name.human.pluralize => number_with_delimiter(@probe_count),
+    Interval.model_name.human.pluralize => number_with_delimiter(@interval_count),
+  }
+) do %>
+  <div class="lg:basis-1/2 flex flex-row space-x-4 items-center">
+    <%= link_to Probe.model_name.human.pluralize, probes_path %>
+    <%= link_to Interval.model_name.human.pluralize, intervals_path %>
+  </div>
+  <div class="lg:basis-1/2 flex flex-row space-x-4 items-center justify-end">
+    <a href="https://github.com/passbe/kort/blob/main/README.md" target="_blank"><%= t("documentation") %></a>
+  </div>
+<% end %>
+<main class="flex-1 flex flex-col px-3 pt-3 pb-6 space-y-6 lg:px-6 lg:pt-6 lg:pb-12 lg:space-y-12">
+  <%= render HeatmapComponent.new(months: Rails.application.config.retention_months) %>
+  <section class="flex flex-col space-y-2">
+    <div class="flex flex-row space-x-4">
+      <div class="grow">
+        <h1 class="font-medium text-gray-100 text-lg">
+          <%= Execution.model_name.human.pluralize %>
+        </h1>
+      </div>
+      <div class="text-sm text-gray-300 flex flex-col space-y-1 lg:space-y-0 lg:flex-row lg:items-end lg:space-x-6">
+        <%= render FilterComponent.new(mode: @mode, date: @date, reset_path: root_path, pagy: @pagy) %>
+      </div>
+    </div>
+  <section class="flex flex-col space-y-2">
+    <div class="grow">
+      <%= render TableComponent.new([
+        Execution.human_attribute_name(:status),
+        { text: t("target"), align: :left },
+        { text: Execution.human_attribute_name(:message), align: :left },
+        "#{Execution.human_attribute_name(:created_at)} | #{t("execution.interval.created_at")}",
+        Execution.human_attribute_name(:elapsed)
+      ]) do %>
+        <%= render ExecutionComponent.with_collection(@executions, variant: :summary) %>
+      <% end %>
+    </div>
+    <div class="flex flex-row space-x-4 justify-center text-sm">
+      <%= render PaginationComponent.new(pagy: @pagy) %>
+    </div>
+  </section>
+</main>

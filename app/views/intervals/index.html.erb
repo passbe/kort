@@ -1,0 +1,50 @@
+<% content_for :title, Interval.model_name.human.pluralize %>
+<%= turbo_stream_from :executions, class: "hidden" %>
+<%= render HeaderComponent.new(
+  title: Interval.model_name.human.pluralize,
+  attributes: {
+    I18n.t("interval.description") => nil
+  },
+  statistics: {
+    Execution.model_name.human.pluralize => number_with_delimiter(@execution_count),
+    Interval.model_name.human.pluralize => number_with_delimiter(@pagy.count)
+  }
+) do %>
+  <div class="lg:basis-1/2">
+    <%= render BreadcrumbsComponent.new([
+      [t("home"), root_path],
+      Interval.model_name.human.pluralize
+    ]) %>
+  </div>
+  <div class="lg:basis-1/2 flex flex-row space-x-4 items-center justify-end">
+    <%= link_to t("button.create"), new_interval_path %>
+  </div>
+<% end %>
+<main class="flex-1 flex flex-col px-3 pt-3 pb-6 space-y-6 lg:px-6 lg:pt-6 lg:pb-12 lg:space-y-12">
+  <section class="flex flex-col space-y-2">
+    <div class="flex flex-row space-x-4">
+      <div class="grow">
+        <h1 class="font-medium text-gray-100 text-lg">
+          <%= Interval.model_name.human.pluralize %>
+        </h1>
+      </div>
+      <div class="text-sm text-gray-300 flex flex-col space-y-1 lg:space-y-0 lg:flex-row lg:items-end lg:space-x-6">
+        <%= render FilterComponent.new(pagy: @pagy) %>
+      </div>
+    </div>
+  <section class="flex flex-col space-y-2">
+    <div class="grow">
+      <%= render TableComponent.new([
+        { text: I18n.t("interval.status"), align: :left },
+        { text: Interval.human_attribute_name(:name), align: :left },
+        Interval.human_attribute_name(:tag_list),
+        Interval.human_attribute_name(:schedules_count)
+      ]) do %>
+        <%= render IntervalComponent.with_collection(@intervals) %>
+      <% end %>
+    </div>
+    <div class="flex flex-row space-x-4 justify-center text-sm">
+      <%= render PaginationComponent.new(pagy: @pagy) %>
+    </div>
+  </section>
+</main>

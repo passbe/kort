@@ -1,0 +1,14 @@
+@import "tailwindcss";
+
+a {
+	@apply text-gray-300 hover:text-sky-400 underline underline-offset-2;
+}
+
+button[type="submit"],
+input[type="submit"] {
+	@apply text-green-300 hover:text-green-400 underline underline-offset-2 hover:cursor-pointer;
+}
+
+p.modal_destroy_description>span {
+	@apply font-medium underline underline-offset-2;
+}

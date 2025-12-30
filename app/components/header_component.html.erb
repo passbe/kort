@@ -1,0 +1,40 @@
+<header class="bg-neutral-800 text-gray-300 shadow-md lg:z-10 lg:sticky lg:top-0">
+  <div class="flex flex-row lg:space-x-3">
+    <div class="grow py-3 pl-3 lg:py-6 lg:pl-6 flex flex-col space-y-1 <%= "lg:pr-6" if @statistics.empty? and !@status %>">
+      <div class="font-medium text-sky-400 text-lg">
+        <%= @title %>
+      </div>
+      <% unless @attributes.empty? %>
+        <div class="text-sm flex flex-col lg:flex-row space-y-1 lg:space-y-0 lg:space-x-4">
+          <% @attributes.each do |key,value| %>
+            <div>
+              <%= key %><%= ": " if value %><%= value if value %>
+            </div>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+    <% if !@statistics.empty? or @status %>
+      <div class="flex flex-col-reverse py-3 pr-3 space-y-3 space-y-reverse justify-end lg:p-0 lg:flex-row lg:space-x-6 lg:space-y-0 <%= @status ? "" : "lg:mr-6" %>">
+        <% statistics do |key,value,data| %>
+          <div class="flex flex-col justify-center items-center">
+            <dt class="text-sm font-medium"><%= key %></dt>
+            <%= tag.dd class: "text-2xl tracking-tight text-sky-400", data: data do %>
+              <%= value %>
+            <% end %>
+          </div>
+        <% end %>
+        <% if @status %>
+          <div class="flex flex-col justify-center font-semibold items-center px-6 text-lg text-neutral-800 <%= @status_css %>">
+            <%= @status %>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+  <% if content? %>
+    <section class="flex flex-col space-y-3 lg:flex-row lg:space-y-0 text-sm px-3 lg:px-6 py-3 border-t border-zinc-700">
+      <%= content %>
+    </section>
+  <% end %>
+</header>

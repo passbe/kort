@@ -1,0 +1,14 @@
+<div class="overflow-x-scroll lg:overflow-x-auto">
+  <table class="relative min-w-full divide-y divide-neutral-400 text-gray-300">
+    <thead>
+      <tr class="text-sm font-semibold">
+        <% rows do |text, css| %>
+          <th scope="col" class="p-2 lg:p-4 <%= css %>"><%= text %></th>
+        <% end %>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-neutral-500">
+      <%= content %>
+    </tbody>
+  </table>
+</div>

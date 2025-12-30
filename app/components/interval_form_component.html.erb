@@ -1,0 +1,95 @@
+<div class="flex flex-col space-y-6">
+  <div class="flex flex-col space-y-3 lg:flex-row lg:space-y-0">
+    <div class="lg:basis-3/10 pb-3 lg:pb-0">
+      <div class="lg:mr-6 lg:pl-2">
+        <h3 class="text-lg font-semibold text-gray-100"><%= t "heading.form", name: Interval.model_name.human %></h3>
+      </div>
+    </div>
+    <div class="lg:basis-7/10 space-y-3 lg:space-y-0 lg:grid lg:grid-cols-6 lg:gap-6">
+      <%= fields_for :interval do |form| %>
+        <% unless @interval.errors.where(:base).blank? %>
+          <div class="col-span-6">
+            <%= render FormHelptextComponent.new(errors: @interval.errors, field: :base, error_heading: true) %>
+          </div>
+        <% end %>
+
+        <div class="flex flex-col space-y-1">
+          <div class="flex flex-row">
+            <%= form.check_box :enabled, class: helpers.checkbox_css, form: form_id %>
+            <%= form.label :enabled, class: "#{helpers.label_css} pl-2" %>
+          </div>
+          <%= render FormHelptextComponent.new(errors: @interval.errors, field: :enabled) %>
+        </div>
+
+        <div class="col-span-3 col-start-1 flex flex-col space-y-1 basis-1/2">
+          <%= form.label :name, class: helpers.label_css %>
+          <%= form.text_field :name, class: helpers.input_css, form: form_id, autofocus: true  %>
+          <%= render FormHelptextComponent.new(errors: @interval.errors, field: :name) %>
+        </div>
+
+        <div class="col-span-6 col-start-1 flex flex-col space-y-1">
+          <%= form.label :description, class: helpers.label_css %>
+          <%= form.text_area :description, class: helpers.input_css, form: form_id, rows: 4 %>
+          <%= render FormHelptextComponent.new(errors: @interval.errors, field: :description) %>
+        </div>
+
+        <div class="col-span-3 col-start-1 flex flex-col space-y-1">
+          <%= form.label :tag_list, class: helpers.label_css %>
+          <%= form.text_field :tag_list, value: @interval.tag_list.join(', '), class: helpers.input_css, form: form_id %>
+          <%= render FormHelptextComponent.new(message: t("interval.tag_list_helptext")) %>
+          <%= render FormHelptextComponent.new(errors: @interval.errors, field: :tag_list) %>
+        </div>
+
+      <% end %>
+    </div>
+  </div>
+
+  <div class="flex flex-col space-y-3 lg:flex-row lg:space-y-0 border-t border-neutral-500 pt-6">
+    <div class="lg:basis-3/10 pb-3 lg:pb-0">
+      <div class="lg:mr-6 lg:pl-2">
+        <h3 class="text-lg font-semibold text-gray-100"><%= Schedule.model_name.human.pluralize %></h3>
+      </div>
+    </div>
+    <div class="lg:basis-7/10 space-y-3 lg:space-y-0 lg:grid lg:grid-cols-6 lg:gap-6" data-controller="schedule">
+      <%= render ScheduleFormComponent.new(schedule: @interval.schedules.build) %>
+      <%= tag.turbo_frame id: "interval_schedules_form_list", class: "col-start-1 col-span-6 flex flex-col text-sm mt-6 lg:mt-0" do %>
+        <div class="flex flex-row p-2 border-neutral-400 border-b">
+          <div class="basis-5/12 font-semibold text-gray-300"><%= Schedule.human_attribute_name(:expression) %></div>
+          <div class="basis-5/12 font-semibold text-gray-300"><%= Schedule.human_attribute_name(:grace) %></div>
+          <div class="basis-5/12 font-semibold text-center text-gray-300"><%= Schedule.human_attribute_name(:next_execution_at) %></div>
+          <div class="basis-5/12 font-semibold text-center text-gray-300"><%= Schedule.human_attribute_name(:grace_expires_at) %></div>
+          <div class="basis-2/12">&nbsp;</div>
+        </div>
+        <%= render ScheduleFormFieldComponent.with_collection(@interval.schedules) %>
+      <% end %>
+    </div>
+  </div>
+  <%= form_with model: @interval, id: form_id, url: (new_record?) ? intervals_path : interval_path(@interval), class: "flex-1 flex flex-col space-y-6" do |form| %>
+
+    <div class="flex flex-col space-y-3 lg:flex-row lg:space-y-0 border-t border-neutral-500 pt-6">
+      <div class="lg:basis-3/10 pb-3 lg:pb-0">
+        <div class="lg:mr-6 lg:pl-2">
+          <h3 class="text-lg font-semibold text-gray-100"><%= Interval.human_attribute_name(:evaluator) %></h3>
+        </div>
+      </div>
+      <div class="lg:basis-7/10 space-y-3 lg:space-y-0 lg:grid lg:grid-cols-6 lg:gap-6">
+        <div class="col-span-6 flex flex-col space-y-1">
+          <%= form.label :evaluator, class: helpers.label_css %>
+          <%= form.text_area :evaluator, class: helpers.input_css, rows: 20  %>
+          <%= render FormHelptextComponent.new(errors: @interval.errors, field: :evaluator) %>
+          <p class="text-sm text-red-400 italic"><%= t("evaluator.warning") %></p>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex flex-row">
+      <div class="basis-3/10">
+      </div>
+      <div class="basis-7/10 flex flex-col">
+        <div class="flex justify-end items-center space-x-6">
+          <%= actions %>
+        </div>
+      </div>
+    </div>
+  <% end %>
+</div>

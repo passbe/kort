@@ -1,0 +1,29 @@
+<% if @pagy.prev %>
+  <%= link_to pagy_url_for(@pagy, @pagy.prev) do %>
+    <%= t("button.previous") %>
+  <% end %>
+<% else %>
+  <span class="inline-flex items-center text-gray-300">
+    <%= t("button.previous") %>
+  </span>
+<% end %>
+<div class="flex space-x-2">
+  <% @pagy.series.each do |item| %>
+    <% if item.is_a?(Integer) %>
+      <%= link_to item, pagy_url_for(@pagy, item)  %>
+    <% elsif item.is_a?(String) %>
+      <span class="inline-flex items-center font-medium text-gray-300" aria-current="page"><%= item %></span>
+    <% elsif item == :gap %>
+      <span class="inline-flex items-center text-gray-300"><%= t("pagination.gap") %></span>
+    <% end %>
+  <% end %>
+</div>
+<% if @pagy.next %>
+  <%= link_to pagy_url_for(@pagy, @pagy.next) do %>
+    <%= t("button.next") %>
+  <% end %>
+<% else %>
+  <span class="inline-flex items-center text-gray-300">
+    <%= t("button.next") %>
+  </span>
+<% end %>

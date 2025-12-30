@@ -1,0 +1,173 @@
+en:
+  name: Kort
+  tagline: Helping you sleep at night.
+  yes: Yes
+  no: No
+  none: None
+  home: Home
+  documentation: Documentation
+  target: Target
+  unknown: Unknown
+  heading:
+    actions: Actions
+    errors: Errors
+    create_model: Create %{name}
+    update_model: Editing %{name}
+    form: "%{name} Details"
+    confirm_destroy: Confirm %{name} Deletion
+    empty_model: No %{name} have been created.
+    heatmap: Last %{count} months
+  status:
+    pending: Pending
+    started: Started
+    success: Success
+    failure: Failure
+    warning: Warning
+    skipped: Skipped
+    enabled: Enabled
+    disabled: Disabled
+  button:
+    add: Add
+    remove: Remove
+    create: Create
+    update: Update
+    edit: Edit
+    delete: Delete
+    cancel: Cancel
+    next: Next >
+    previous: < Previous
+    execute: Execute
+    back: Back
+    reset: Reset
+  pagination:
+    display: Displaying items
+    of: of
+    gap: ...
+    filter: Filter
+  destroy: Are you sure you would like to delete the %{model} "%{name}"?<br /><br />All associated data <span>will be destroyed</span>!
+  probe:
+    description: List of probes configured to reach out and test an entity.
+    type_prompt: Select type of probe
+    tag_list_helptext: Seperate tags using commas
+    dns:
+      evaluator:
+        message: DNS query returned %{type}
+    port:
+      evaluator:
+        message:
+          true: Port %{port} is open
+          false: Port %{port} is closed
+    http:
+      evaluator:
+        message:
+          true: HTTP request was successful
+          false: HTTP request failed
+    docker:
+      evaluator:
+        message:
+          true: Container %{reference} is running
+          false: Container %{reference} is not running
+    status: Status
+  interval:
+    description: List of intervals awaiting signals to track executions.
+    tag_list_helptext: Seperate tags using commas
+    status: Status
+    signal:
+      message: "Message set: '%{message}'"
+      start: |
+        Execution has been marked as started (%{time}).
+
+        Execution ID: %{id}
+        Execution Counter: %{counter}
+        Interval Name: %{name}
+      start_log: Marked as started by %{ip}.
+      ping: |
+        Execution has been marked as %{status} (%{time}).
+
+        Execution ID: %{id}
+        Execution Counter: %{counter}
+        Interval Name: %{name}
+      ping_log: Received %{status} status from %{ip}.
+      no_execution:  |
+        Interval is not due for execution. Your schedules are incorrect.
+
+        Interval Name: %{name}
+  evaluator:
+    failure: No evaluate function defined for probe.
+    warning: Using a custom evaluator function can pose a security risk. Never paste untrusted code without understanding the implications.
+  schedule:
+    expression:
+      valid: "Valid - Next Execution: %{time}"
+      prompt: Start typing expression to validate
+      invalid: invalid
+    grace:
+      valid: "Valid - Next Grace Expires: %{time}"
+      prompt: "Enter grace period (eg: 1m = 1 Minute, 1h = 1 Hour)"
+      invalid: period is invalid
+    none: No Schedule
+    manual: Manually executed
+    calculated: Calculated
+  execution:
+    no_message: No message
+    no_log: No log file found!
+    no_signal: No signal received
+    default_warn: "Warning: No status set from evaluation methods"
+    late: Interval was not completed within grace period
+    logs: Log Output
+    earliest: Earliest Execution
+    latest: Latest Execution
+    only: Only Execution
+    interval: # Execution fields change slighty based on Interval type
+      created_at: Expected
+      started_at: Recieved
+  activerecord:
+    models:
+      probes/dns: DNS
+      probes/http: HTTP
+    attributes:
+      probe:
+        id: ID
+        enabled: Enabled
+        name: Name
+        description: Description
+        type: Type
+        tag_list: Tags
+        settings: Settings
+        schedules: Schedules
+        schedules_count: Schedules
+        evaluator: Evaluator Function
+      probes/http:
+        url: URL
+        verify_ssl: Verify SSL
+        follow_redirect: Follow Redirection
+      interval:
+        id: ID
+        enabled: Enabled
+        name: Name
+        description: Description
+        tag_list: Tags
+        schedules: Schedules
+        schedules_count: Schedules
+        evaluator: Evaluator Function
+      schedule:
+        id: ID
+        expression: Expression
+        next_execution_at: Next Execution
+        grace_expires_at: Grace Expires
+      execution:
+        id: ID
+        created_at: Queued
+        started_at: Started
+        finished_at: Finished
+        log_identifier: Log file
+        pending: Pending
+        elapsed: Elapsed
+        counter: "#"
+    errors:
+      models:
+        schedule:
+          attributes:
+            next_execution_at:
+              blank: impossible to generate with expression
+            grace_expires_at:
+              blank: is required when using grace

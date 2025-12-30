@@ -1,0 +1,20 @@
+<% unless @mode.nil? %>
+  <div>
+    <%= t("pagination.filter") %>: 
+    <span class="font-medium">
+      <% if @mode == :day %>
+        <%= @date.strftime("#{@date.day.ordinalize} %B %Y") %>
+      <% elsif @mode == :month %>
+        <%= @date.strftime("%B %Y") %>
+      <% end %>
+    </span> - <%= link_to t("button.reset"), @path %>
+  </div>
+<% end %>
+<div>
+  <%= t("pagination.display") %>
+  <span class="font-medium"><%= number_with_delimiter(@pagy.from) %></span>
+  -
+  <span class="font-medium"><%= number_with_delimiter(@pagy.to) %></span>
+  <%= t("pagination.of") %>
+  <span class="font-medium"><%= number_with_delimiter(@pagy.count) %></span>
+</div>

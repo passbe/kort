@@ -1,0 +1,63 @@
+<%= fields_for :probe, @probe, { include_id: false } do |form| %>
+  <div class="flex flex-col space-y-3 lg:flex-row border-t border-neutral-500 pt-6">
+    <div class="lg:basis-3/10 pb-3 lg:pb-0">
+      <div class="lg:mr-6 lg:pt-2 lg:pl-2">
+        <h3 class="text-lg font-semibold text-gray-100"><%= @probe.model_name.human %> <%= Probe.human_attribute_name(:settings) %></h3>
+      </div>
+    </div>
+    <div class="lg:basis-7/10 space-y-3 lg:grid lg:grid-cols-6 lg:gap-6">
+
+      <div class="col-span-3 flex flex-col space-y-1">
+        <%= form.label :url, class: helpers.label_css %>
+        <%= form.text_field :url, class: helpers.input_css  %>
+        <%= render FormHelptextComponent.new(errors: @probe.errors, field: :url) %>
+      </div>
+
+      <div class="col-span-3 flex flex-col space-y-1">
+        <%= form.label :method, class: helpers.label_css %>
+        <div class="grid grid-cols-1">
+          <%= form.select :method, options_for_select(method_options, @probe.method), {}, { class: helpers.select_css } %>
+          <svg viewBox="0 0 16 16" fill="currentColor" data-slot="icon" aria-hidden="true" class="pointer-events-none col-start-1 row-start-1 mr-2 size-5 self-center justify-self-end text-gray-500 sm:size-4">
+            <path d="M4.22 6.22a.75.75 0 0 1 1.06 0L8 8.94l2.72-2.72a.75.75 0 1 1 1.06 1.06l-3.25 3.25a.75.75 0 0 1-1.06 0L4.22 7.28a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd" fill-rule="evenodd" />
+          </svg>
+        </div>
+        <%= render FormHelptextComponent.new(errors: @probe.errors, field: :method) %>
+      </div>
+
+      <div class="col-span-2 flex flex-col space-y-1">
+        <%= form.label :timeout, class: helpers.label_css %>
+        <%= form.text_field :timeout, class: helpers.input_css  %>
+        <%= render FormHelptextComponent.new(errors: @probe.errors, field: :timeout) %>
+      </div>
+
+      <div class="col-span-2 flex flex-col space-y-1 items-center">
+        <div class="flex flex-row pt-5">
+          <%= form.check_box :verify_ssl, class: helpers.checkbox_css %>
+          <%= form.label :verify_ssl, class: "#{helpers.label_css} pl-2" %>
+        </div>
+        <%= render FormHelptextComponent.new(errors: @probe.errors, field: :verify_ssl) %>
+      </div>
+
+      <div class="col-span-2 flex flex-col space-y-1 items-center">
+        <div class="flex flex-row pt-5">
+          <%= form.check_box :follow_redirect, class: helpers.checkbox_css %>
+          <%= form.label :follow_redirect, class: "#{helpers.label_css} pl-2" %>
+        </div>
+        <%= render FormHelptextComponent.new(errors: @probe.errors, field: :follow_redirect) %>
+      </div>
+
+      <div class="col-span-6 space-y-1">
+        <%= form.label :headers, class: helpers.label_css %>
+        <%= form.text_area :headers, class: helpers.input_css, value: hash_to_str(@probe.headers), rows: 8  %>
+        <%= render FormHelptextComponent.new(errors: @probe.errors, field: :headers) %>
+      </div>
+
+      <div class="col-span-6 space-y-1">
+        <%= form.label :body, class: helpers.label_css %>
+        <%= form.text_area :body, class: helpers.input_css, rows: 8  %>
+        <%= render FormHelptextComponent.new(errors: @probe.errors, field: :body) %>
+      </div>
+
+    </div>
+  </div>
+<% end %>

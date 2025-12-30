@@ -1,0 +1,70 @@
+<% content_for :title, "#{Execution.model_name.human} ##{@execution.counter}" %>
+<% if @execution.pending? or @execution.started? %>
+  <%= turbo_stream_from @execution, class: "hidden" %>
+<% end %>
+<%= render HeaderComponent.new(
+  title: "##{number_with_delimiter(@execution.counter)} - #{@execution.message.blank? ? I18n.t("execution.no_message") : @execution.message}",
+  attributes: Hash.new.tap do |h|
+    h[Probe.model_name.human] = link_to(@execution.target.name, probe_path(@execution.target))
+    h[Probe.human_attribute_name(:type)] = @execution.target.model_name.human
+    h[Execution.human_attribute_name(:created_at)] = @execution.created_at.strftime("%Y-%m-%d %H:%M:%S")
+    h[Execution.human_attribute_name(:started_at)] = @execution.started_at.strftime("%Y-%m-%d %H:%M:%S") if @execution.started_at
+    h[Execution.human_attribute_name(:finished_at)] = @execution.finished_at.strftime("%Y-%m-%d %H:%M:%S") if @execution.finished_at
+  end,
+  statistics: Hash.new.tap do |h|
+    key = Execution.human_attribute_name(:pending)
+    h[key] = {
+      value: timespan(@execution.pending_secs)
+    }
+    h[key].merge!({
+      data: {
+        controller: "timer",
+        "timer-time-value": @execution.created_at.to_i
+      }
+    }) if @execution.started_at.nil?
+    if @execution.started? or (!@execution.started_at.nil? and !@execution.finished_at.nil?)
+      key = Execution.human_attribute_name(:elapsed)
+      h[key] = {
+        value: timespan(@execution.elapsed_secs)
+      }
+      h[key].merge!({
+        data: {
+          controller: "timer",
+          "timer-time-value": @execution.started_at.to_i
+        }
+      }) if @execution.started_at and @execution.finished_at.nil?
+    end
+  end,
+  status: I18n.t("status.#{@execution.status}"),
+  status_css: status_bg_css(@execution.status)
+) do %>
+  <div class="lg:basis-1/2">
+    <%= render BreadcrumbsComponent.new([
+      [t("home"), root_path],
+      [Probe.model_name.human.pluralize, probes_path],
+      [@execution.target.name, probe_path(@execution.target)],
+      "#{Execution.model_name.human} ##{@execution.counter}"
+    ]) %>
+  </div>
+  <div class="lg:basis-1/2 flex flex-row space-x-4 items-center justify-end">
+    <% if !@previous_execution and !@next_execution %>
+      <span class="text-gray-400 italic"><%= t "execution.only" %></span>
+    <% else %>
+      <% if @previous_execution %>
+        <%= link_to "< #{Execution.model_name.human} ##{number_with_delimiter(@previous_execution.counter)}", execution_path(@previous_execution) %>
+      <% else %>
+        <span class="text-gray-400 italic"><%= t "execution.earliest" %></span>
+      <% end %>
+      <% if @next_execution %>
+        <%= link_to "#{Execution.model_name.human} ##{number_with_delimiter(@next_execution.counter)} >", execution_path(@next_execution) %>
+      <% else %>
+        <span class="text-gray-400 italic"><%= t "execution.latest" %></span>
+      <% end %>
+    <% end %>
+  </div>
+<% end %>
+<main class="flex-1 flex flex-col px-3 pt-3 pb-6 space-y-6 lg:px-6 lg:pt-6 lg:pb-12 lg:space-y-12">
+  <section>
+    <%= render ExecutionLogsComponent.new(@execution) %>
+  </section>
+</main>

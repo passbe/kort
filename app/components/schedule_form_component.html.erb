@@ -1,0 +1,70 @@
+<%= tag.turbo_frame id: "#{model}_schedules_form_validate", class: "col-span-6" do %>
+  <%= form_for @schedule, url: validate_schedules_path, data: { "schedule-target": "validateForm" }, html: { class: "space-y-3 lg:grid lg:grid-cols-6 lg:gap-6" }  do |form| %>
+    <%= form.hidden_field :target_type %>
+    <%= form.hidden_field :target_id %>
+
+    <div class="col-span-3 flex flex-col space-y-1">
+      <%= form.label :expression, class: helpers.label_css %>
+      <%= form.text_field :expression, class: helpers.input_css, data: { action: "schedule#validate keydown.enter->schedule#submit:stop", "schedule-target": "expression" }, autocomplete: "off" %>
+      <div class="flex flex-row space-x-4">
+        <div class="grow">
+          <% if blank?(:expression) %>
+            <%= render FormHelptextComponent.new(message: t("schedule.expression.prompt")) %>
+          <% else %>
+            <% if expression_valid? %>
+              <%= render FormHelptextComponent.new(message: t("schedule.expression.valid", time: @schedule.next_execution_at), success: true) %>
+            <% else %>
+              <% if @schedule.errors.where(:expression).present? %>
+                <%= render FormHelptextComponent.new(errors: @schedule.errors, field: :expression) %>
+              <% else %>
+                <%= render FormHelptextComponent.new(errors: @schedule.errors, field: :next_execution_at) %>
+              <% end %>
+            <% end %>
+          <% end %>
+        </div>
+        <div>
+          <% if expression_valid? and not blank?(:expression) and @without_grace %>
+            <%= link_to t("button.add"), "#add", data: { action: "schedule#submit:stop" } %>
+          <% end %>&nbsp;
+        </div>
+      </div>
+    </div>
+
+    <% unless @without_grace %>
+      <div class="col-span-3 flex flex-col space-y-1">
+        <%= form.label :grace, class: helpers.label_css %>
+        <%= form.text_field :grace, class: helpers.input_css, data: { action: "schedule#validate keydown.enter->schedule#submit:stop", "schedule-target": "grace" }, autocomplete: "off" %>
+        <div class="flex flex-row space-x-4">
+          <div class="grow">
+            <% if blank?(:grace) %>
+              <%= render FormHelptextComponent.new(message: t("schedule.grace.prompt")) %>
+            <% else %>
+              <% if grace_valid? %>
+                <%= render FormHelptextComponent.new(message: t("schedule.grace.valid", time: @schedule.grace_expires_at), success: true) %>
+              <% else %>
+                <% if @schedule.errors.where(:grace).present? %>
+                  <%= render FormHelptextComponent.new(errors: @schedule.errors, field: :grace) %>
+                <% else %>
+                  <%= render FormHelptextComponent.new(errors: @schedule.errors, field: :grace_expires_at) %>
+                <% end %>
+              <% end %>
+            <% end %>
+          </div>
+          <div>
+            <% if expression_valid? and grace_valid? and not blank?(:grace) %>
+              <%= link_to t("button.add"), "#add", data: { action: "schedule#submit:stop" } %>
+            <% end %>&nbsp;
+          </div>
+        </div>
+      </div>
+    <% end %>
+  <% end %>
+<% end %>
+<%= tag.turbo_frame id: "#{model}_schedules_form_create", class: "hidden" do %>
+  <%= form_for @schedule, url: schedules_path, data: { "schedule-target": "createForm" } do |form| %>
+    <%= form.hidden_field :target_type %>
+    <%= form.hidden_field :target_id %>
+    <%= form.hidden_field :expression, data: { "schedule-target": "expressionHidden" } %>
+    <%= form.hidden_field :grace, data: { "schedule-target": "graceHidden" } %>
+  <% end %>
+<% end %>

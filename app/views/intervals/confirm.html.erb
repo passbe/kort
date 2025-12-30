@@ -1,0 +1,10 @@
+<%= turbo_frame_tag "modal" do %>
+  <%= render ModalComponent.new(
+    title: t("heading.confirm_destroy", name: Interval.model_name.human),
+    description: t("destroy", name: @interval.name, model: Interval.model_name.human.downcase).html_safe
+  ) do |component| %>
+    <% component.with_actions do %>
+      <%= link_to t("button.delete"), interval_path(@interval), class: "text-red-300! hover:text-red-400!", data: { "turbo-method": "delete", "turbo-frame": "_top" }  %>
+    <% end %>
+  <% end %>
+<% end %>

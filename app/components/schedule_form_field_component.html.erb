@@ -1,0 +1,17 @@
+<div class="flex flex-row p-2 border-b border-neutral-500 <%= "hidden" if @schedule.marked_for_destruction? %>" data-schedule-target="schedule">
+  <% unless @schedule.marked_for_destruction? %>
+    <div class="basis-5/12 font-medium text-gray-300"><%= @schedule.expression %></div>
+    <% unless @without_grace %>
+      <div class="basis-5/12 font-medium text-gray-300"><%= @schedule.grace %></div>
+    <% end %>
+    <div class="basis-5/12 text-center text-gray-300"><%= @schedule.next_execution_at %></div>
+    <% unless @without_grace %>
+      <div class="basis-5/12 text-center text-gray-300"><%= @schedule.grace_expires_at %></div>
+    <% end %>
+    <div class="basis-2/12 text-right"><a href="#" data-action="schedule#remove:prevent"><%= t "button.remove" %></a></div>
+  <% end %>
+  <%= helpers.hidden_field_tag input_name(field: 'id'), @schedule.id, { id: input_id(field: 'id'), form: form_id } %>
+  <%= helpers.hidden_field_tag input_name(field: 'expression'), @schedule.expression, { id: input_id(field: 'expression'), form: form_id } %>
+  <%= helpers.hidden_field_tag input_name(field: 'grace'), @schedule.grace, { id: input_id(field: 'grace'), form: form_id } %>
+  <%= helpers.hidden_field_tag input_name(field: '_destroy'), @schedule.marked_for_destruction?, { id: input_id(field: '_destroy'), form: form_id } %>
+</div>

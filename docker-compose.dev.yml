@@ -1,0 +1,20 @@
+version: '3.4'
+
+services:
+
+  kort:
+    build:
+      context: ./
+      dockerfile: ./Dockerfile.dev
+    image: kort:dev
+    container_name: kort 
+    tty: true
+    stdin_open: true
+    command: bash -c "rm -f /rails/tmp/pids/server.pid; ./bin/dev"
+    ports:
+      - 3000:3000
+    volumes:
+      - ./:/rails
+      - ./:$PWD # LSP
+      - /run/user/1000/podman/podman.sock:/var/run/docker.sock # Docker support
+    restart: unless-stopped

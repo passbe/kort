@@ -1,0 +1,24 @@
+<section class="flex flex-col space-y-2">
+  <div class="flex flex-row space-x-4">
+    <div class="grow">
+      <h1 class="font-medium text-gray-100 text-lg"><%= t "heading.heatmap", count: number_with_delimiter(@months) %></h1>
+    </div>
+    <div class="text-sm text-gray-400 flex flex-row items-end space-x-2">
+    </div>
+  </div>
+  <div class="w-full flex flex-col space-y-6 lg:flex-row lg:space-x-10 lg:justify-center">
+    <% generate_series.to_a.reverse.each do |month,days| %>
+      <% month = Date.strptime(month, "%Y-%m") %>
+      <div class="flex flex-col space-y-4">
+        <div class="text-center lg:text-left">
+          <%= link_to month.strftime("%B"), path(month: month.strftime("%Y-%m")) %>
+        </div>
+        <div class="w-32 mx-auto lg:w-auto lg:grow grid gap-1 grid-cols-7 lg:content-start">
+          <% days.each do |day,statuses| %>
+            <%= link_to '', path(day: day), title: Date.strptime(day, "%Y-%m-%d").strftime("%e %B %Y"), class: "border border-neutral-400 w-4 h-4 rounded-sm no-underline! hover:border-sky-400 #{status_css(statuses)}" %>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</section>

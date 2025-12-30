@@ -1,0 +1,80 @@
+<% content_for :title, "#{Execution.model_name.human} ##{@execution.counter}" %>
+<% if @execution.pending? or @execution.started? %>
+  <%= turbo_stream_from @execution, class: "hidden" %>
+<% end %>
+<%= render HeaderComponent.new(
+  title: "##{number_with_delimiter(@execution.counter)} - #{@execution.message.blank? ? I18n.t("execution.no_message") : @execution.message}",
+  attributes: Hash.new.tap do |h|
+    h[Interval.model_name.human] = link_to(@execution.target.name, interval_path(@execution.target))
+    h[I18n.t("execution.interval.created_at")] = @execution.created_at.strftime("%Y-%m-%d %H:%M:%S")
+    # Finished and reports elapsed
+    if @execution.started_at and @execution.finished_at
+      h[Execution.human_attribute_name(:started_at)] = @execution.started_at.strftime("%Y-%m-%d %H:%M:%S")
+      h[Execution.human_attribute_name(:finished_at)] = @execution.finished_at.strftime("%Y-%m-%d %H:%M:%S")
+    # Running and reporting elapsed
+    elsif @execution.started_at and @execution.started?
+      h[Execution.human_attribute_name(:started_at)] = @execution.started_at.strftime("%Y-%m-%d %H:%M:%S")
+    # Single signal recieved with no elpased reporting
+    elsif @execution.started_at
+      h[I18n.t("execution.interval.started_at")] = @execution.started_at.strftime("%Y-%m-%d %H:%M:%S") if @execution.started_at
+    end
+  end,
+  statistics: Hash.new.tap do |h|
+    if @execution.pending? and @execution.schedule
+      key = Schedule.human_attribute_name(:grace_expires_at)
+      h[key] = {
+        value: timespan(@execution.schedule.grace_expires_secs)
+      }
+      h[key].merge!({
+        data: {
+          controller: "timer",
+          "timer-time-value": @execution.schedule.grace_expires_at.to_i
+        }
+      }) if @execution.started_at.nil?
+    end
+    if @execution.started? or (!@execution.started_at.nil? and !@execution.finished_at.nil?)
+      key = Execution.human_attribute_name(:elapsed)
+      h[key] = {
+        value: timespan(@execution.elapsed_secs)
+      }
+      h[key].merge!({
+        data: {
+          controller: "timer",
+          "timer-time-value": @execution.started_at.to_i
+        }
+      }) if @execution.started_at and @execution.finished_at.nil?
+    end
+  end,
+  status: I18n.t("status.#{@execution.status}"),
+  status_css: status_bg_css(@execution.status)
+) do %>
+  <div class="lg:basis-1/2">
+    <%= render BreadcrumbsComponent.new([
+      [t("home"), root_path],
+      [Interval.model_name.human.pluralize, intervals_path],
+      [@execution.target.name, interval_path(@execution.target)],
+      "#{Execution.model_name.human} ##{@execution.counter}"
+    ]) %>
+  </div>
+  <div class="lg:basis-1/2 flex flex-row space-x-4 items-center justify-end">
+    <% if !@previous_execution and !@next_execution %>
+      <span class="text-gray-400 italic"><%= t "execution.only" %></span>
+    <% else %>
+      <% if @previous_execution %>
+        <%= link_to "< #{Execution.model_name.human} ##{number_with_delimiter(@previous_execution.counter)}", execution_path(@previous_execution) %>
+      <% else %>
+        <span class="text-gray-400 italic"><%= t "execution.earliest" %></span>
+      <% end %>
+      <% if @next_execution %>
+        <%= link_to "#{Execution.model_name.human} ##{number_with_delimiter(@next_execution.counter)} >", execution_path(@next_execution) %>
+      <% else %>
+        <span class="text-gray-400 italic"><%= t "execution.latest" %></span>
+      <% end %>
+    <% end %>
+  </div>
+<% end %>
+<main class="flex-1 flex flex-col px-3 pt-3 pb-6 space-y-6 lg:px-6 lg:pt-6 lg:pb-12 lg:space-y-12">
+  <section>
+    <%= render ExecutionLogsComponent.new(@execution) %>
+  </section>
+</main>

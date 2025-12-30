@@ -1,0 +1,113 @@
+<div>
+  <div class="lg:space-y-6">
+    <div class="flex flex-col space-y-3 lg:space-y-0 lg:flex-row pb-6 lg:pb-0">
+      <div class="lg:basis-3/10 pb-3 lg:pb-0">
+        <div class="lg:mr-6 lg:pl-2">
+          <h3 class="text-lg font-semibold text-gray-100"><%= t "heading.form", name: Probe.model_name.human %></h3>
+        </div>
+      </div>
+      <div class="lg:basis-7/10 space-y-3 lg:space-y-0 lg:grid lg:grid-cols-6 lg:gap-6">
+        <%= fields_for :probe do |form| %>
+          <% unless @probe.errors.where(:base).blank? %>
+            <div class="col-span-6">
+              <%= render FormHelptextComponent.new(errors: @probe.errors, field: :base, error_heading: true) %>
+            </div>
+          <% end %>
+
+          <div class="flex flex-col space-y-1">
+            <div class="flex flex-row">
+              <%= form.check_box :enabled, class: helpers.checkbox_css, form: form_id %>
+              <%= form.label :enabled, class: "#{helpers.label_css} pl-2" %>
+            </div>
+            <%= render FormHelptextComponent.new(errors: @probe.errors, field: :enabled) %>
+          </div>
+
+          <div class="col-span-3 col-start-1 flex flex-col space-y-1 basis-1/2">
+            <%= form.label :name, class: helpers.label_css %>
+            <%= form.text_field :name, class: helpers.input_css, form: form_id, autofocus: true  %>
+            <%= render FormHelptextComponent.new(errors: @probe.errors, field: :name) %>
+          </div>
+
+          <div class="col-span-3 flex flex-col space-y-1">
+            <div data-controller="type-selector" data-type-selector-modal-value="probe_type_fields" class="basis-1/2 flex flex-col space-y-1">
+              <%= form.label :type, class: helpers.label_css %>
+              <div class="grid grid-cols-1">
+                <%= form.select :type, options_for_select(subclasses, @probe.type), { prompt: t("probe.type_prompt") }, { class: helpers.select_css, form: form_id, data: { action: "type-selector#update" } } %>
+                <svg viewBox="0 0 16 16" fill="currentColor" data-slot="icon" aria-hidden="true" class="pointer-events-none col-start-1 row-start-1 mr-2 size-5 self-center justify-self-end text-gray-500 sm:size-4">
+                  <path d="M4.22 6.22a.75.75 0 0 1 1.06 0L8 8.94l2.72-2.72a.75.75 0 1 1 1.06 1.06l-3.25 3.25a.75.75 0 0 1-1.06 0L4.22 7.28a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd" fill-rule="evenodd" />
+                </svg>
+              </div>
+              <%= render FormHelptextComponent.new(errors: @probe.errors, field: :type) %>
+            </div>
+          </div>
+
+          <div class="col-span-6 col-start-1 flex flex-col space-y-1">
+            <%= form.label :description, class: helpers.label_css %>
+            <%= form.text_area :description, class: helpers.input_css, form: form_id, rows: 4 %>
+            <%= render FormHelptextComponent.new(errors: @probe.errors, field: :description) %>
+          </div>
+
+          <div class="col-span-3 col-start-1 flex flex-col space-y-1">
+            <%= form.label :tag_list, class: helpers.label_css %>
+            <%= form.text_field :tag_list, value: @probe.tag_list.join(', '), class: helpers.input_css, form: form_id %>
+            <%= render FormHelptextComponent.new(message: t("probe.tag_list_helptext")) %>
+            <%= render FormHelptextComponent.new(errors: @probe.errors, field: :tag_list) %>
+          </div>
+
+        <% end %>
+      </div>
+    </div>
+
+    <div class="flex flex-col space-y-3 lg:flex-row lg:space-y-0 border-t border-neutral-500 py-6">
+      <div class="lg:basis-3/10 pb-3 lg:pb-0">
+        <div class="lg:mr-6 lg:pl-2">
+          <h3 class="text-lg font-semibold text-gray-100"><%= Schedule.model_name.human.pluralize %></h3>
+        </div>
+      </div>
+      <div class="lg:basis-7/10 space-y-3 lg:space-y-0 lg:grid lg:grid-cols-6 lg:gap-6" data-controller="schedule">
+        <%= render ScheduleFormComponent.new(schedule: @probe.schedules.build, without_grace: true) %>
+        <%= tag.turbo_frame id: "probe_schedules_form_list", class: "col-start-1 col-span-6 flex flex-col text-sm mt-6 lg:mt-0" do %>
+          <div class="flex flex-row p-2 border-neutral-400 border-b">
+            <div class="basis-5/12 font-semibold text-gray-300"><%= Schedule.human_attribute_name(:expression) %></div>
+            <div class="basis-5/12 font-semibold text-center text-gray-300"><%= Schedule.human_attribute_name(:next_execution_at) %></div>
+            <div class="basis-2/12">&nbsp;</div>
+          </div>
+          <%= render ScheduleFormFieldComponent.with_collection(@probe.schedules, without_grace: true) %>
+        <% end %>
+      </div>
+    </div>
+  </div>
+  <%= form_with model: @probe, scope: :probe, id: form_id, url: (new_record?) ? probes_path : probe_path(@probe), class: "flex-1 flex flex-col space-y-6" do |form| %>
+    <%= tag.turbo_frame id: "probe_type_fields" do %>
+      <% if @probe.type? %>
+        <%= render @probe.component_class.new(probe: @probe) unless @probe.component_class.nil? %>
+      <% end %>
+    <% end %>
+
+    <div class="flex flex-col space-y-3 lg:flex-row lg:space-y-0 border-t border-neutral-500 pt-6">
+      <div class="lg:basis-3/10 pb-3 lg:pb-0">
+        <div class="lg:mr-6 lg:pl-2">
+          <h3 class="text-lg font-semibold text-gray-100"><%= Probe.human_attribute_name(:evaluator) %></h3>
+        </div>
+      </div>
+      <div class="lg:basis-7/10 space-y-3 lg:space-y-0 lg:grid lg:grid-cols-6 lg:gap-6">
+        <div class="col-span-6 flex flex-col space-y-1">
+          <%= form.label :evaluator, class: helpers.label_css %>
+          <%= form.text_area :evaluator, class: helpers.input_css, rows: 20  %>
+          <%= render FormHelptextComponent.new(errors: @probe.errors, field: :evaluator) %>
+          <p class="text-sm text-red-400 italic"><%= t("evaluator.warning") %></p>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex flex-row">
+      <div class="basis-3/10">
+      </div>
+      <div class="basis-7/10 flex flex-col">
+        <div class="flex justify-end items-center space-x-6">
+          <%= actions %>
+        </div>
+      </div>
+    </div>
+  <% end %>
+</div>
